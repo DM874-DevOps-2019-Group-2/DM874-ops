@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: kafka
+  serviceName: "kafka"
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: default-pool
+      volumes:
+        - name: kafka-configmap
+          configMap:
+            name: kafka-configmap
+        - name: kafka-config
+          emptyDir: {}
+      terminationGracePeriodSeconds: 30
+      initContainers:
+        - name: init-config
+          image: eu.gcr.io/cerno-245411/kafka:latest
+          imagePullPolicy: Always
+          command: ['/bin/bash', '/opt/kafka/init/init.sh']
+          volumeMounts:
+            - mountPath: /opt/kafka/init
+              name: kafka-configmap
+            - mountPath: /opt/kafka/config
+              name: kafka-config
+      containers:
+        - name: kafka
+          image: eu.gcr.io/cerno-245411/kafka:latest
+          imagePullPolicy: Always
+          env:
+            - name: JMX_PORT
+              value: "5555"
+          ports:
+            - name: inside
+              containerPort: 9092
+            - name: outside
+              containerPort: 9094
+            - name: jmx
+              containerPort: 5555
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-ce", "kill -s TERM 1; while $(kill -0 1 2>/dev/null); do sleep 1; done"]
+          resources:
+            requests:
+              cpu: 300m
+              memory: 300Mi
+            limits:
+              memory: 800Mi
+          volumeMounts:
+            - mountPath: /opt/kafka/config
+              name: kafka-config
+            - mountPath: /var/lib/kafka
+              name: kafka-data
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 10Gi
+
