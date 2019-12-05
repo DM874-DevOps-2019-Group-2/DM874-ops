@@ -1,0 +1,27 @@
+#Headless
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: default
+  labels:
+    app: kafka
+spec:
+  ports:
+    - port: 9092
+      name: kafka-port
+  clusterIP: None
+  selector:
+    app: kafka
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+  namespace: default
+spec:
+  ports:
+    - port: 9092
+      name: kafka-port
+  selector:
+    app: kafka
