@@ -17,8 +17,6 @@ spec:
       labels:
         app: zookeeper
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: default-pool
       terminationGracePeriodSeconds: 60
       initContainers:
         - name: init-config

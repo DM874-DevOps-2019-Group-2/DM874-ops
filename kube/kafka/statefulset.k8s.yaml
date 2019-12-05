@@ -17,8 +17,6 @@ spec:
       labels:
         app: kafka
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: default-pool
       volumes:
         - name: kafka-configmap
           configMap:
