@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: zookeeper
+  serviceName: "zookeeper"
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: default-pool
+      terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: init-config
+          image: eu.gcr.io/cerno-245411/zookeeper:latest
+          imagePullPolicy: Always
+          command: ['/bin/bash', '/opt/zookeeper/init/init.sh']
+          volumeMounts:
+            - mountPath: /opt/zookeeper/init
+              name: zookeeper-configmap
+            - mountPath: /opt/zookeeper/conf
+              name: zookeeper-config
+            - name: zookeeper-data
+              mountPath: /data/zookeeper
+          env:
+            - name: ZOOKEEPER_REPLICAS
+              value: '3'
+      containers:
+        - name: zookeeper
+          imagePullPolicy: Always
+          image: eu.gcr.io/cerno-245411/zookeeper:latest
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-ce", "kill -s TERM 1; while $(kill -0 1 2>/dev/null); do sleep 1; done"]
+          ports:
+            - containerPort: 2181
+              name: client
+            - containerPort: 2888
+              name: peer
+            - containerPort: 3888
+              name: leader-election
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              memory: 120Mi
+          volumeMounts:
+            - name: zookeeper-config
+              mountPath: /opt/zookeeper/conf
+            - name: zookeeper-data
+              mountPath: /data/zookeeper
+      volumes:
+        - name: zookeeper-configmap
+          configMap:
+            name: zookeeper-configmap
+        - name: zookeeper-config
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: zookeeper-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 1Gi
