@@ -28,7 +28,7 @@ spec:
       terminationGracePeriodSeconds: 30
       initContainers:
         - name: init-config
-          image: eu.gcr.io/cerno-245411/kafka:latest
+          image: dm874/kafka:latest
           imagePullPolicy: Always
           command: ['/bin/bash', '/opt/kafka/init/init.sh']
           volumeMounts:
@@ -38,7 +38,7 @@ spec:
               name: kafka-config
       containers:
         - name: kafka
-          image: eu.gcr.io/cerno-245411/kafka:latest
+          image: dm874/kafka:latest
           imagePullPolicy: Always
           env:
             - name: JMX_PORT

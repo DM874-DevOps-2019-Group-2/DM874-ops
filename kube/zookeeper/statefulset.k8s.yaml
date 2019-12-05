@@ -22,7 +22,7 @@ spec:
       terminationGracePeriodSeconds: 60
       initContainers:
         - name: init-config
-          image: eu.gcr.io/cerno-245411/zookeeper:latest
+          image: dm874/zookeeper:latest 
           imagePullPolicy: Always
           command: ['/bin/bash', '/opt/zookeeper/init/init.sh']
           volumeMounts:
@@ -38,7 +38,7 @@ spec:
       containers:
         - name: zookeeper
           imagePullPolicy: Always
-          image: eu.gcr.io/cerno-245411/zookeeper:latest
+          image: dm874/zookeeper:latest
           lifecycle:
             preStop:
               exec:
