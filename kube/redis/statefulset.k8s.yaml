@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  serviceName: "redis"
+  selector:
+    matchLabels:
+      app: redis
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis-container
+          image: redis
+          ports:
+            - name: redis-port
+              containerPort: 6379
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "500m"
+            limits:
+              memory: "500Mi"
+              cpu: "1000m"

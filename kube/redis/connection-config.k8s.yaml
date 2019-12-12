@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-connection-config
+data:
+  REDIS_HOSTNAME: "redis-0.redis"
+  REDIS_PORT: "6379"

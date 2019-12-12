@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: code-snippet-storage-config
+data:
+  CODE_SNIPPET_BUCKET: "code-snippet-bucket"
+  CODE_SNIPPET_TOPIC: "code-snippet-topic"
