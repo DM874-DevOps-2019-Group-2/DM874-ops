@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: dm874-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: gr2-site.cloud.sdu.dk
+    http:
+      paths:
+      - path: /login
+        backend:
+          serviceName: auth
+          servicePort: 8084
+      - path: /register
+        backend:
+          serviceName: auth
+          servicePort: 8084
