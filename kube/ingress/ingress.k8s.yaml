@@ -3,7 +3,6 @@ kind: Ingress
 metadata:
   name: dm874-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - host: gr2-site.cloud.sdu.dk
@@ -11,9 +10,10 @@ spec:
       paths:
       - path: /login
         backend:
-          serviceName: auth
+          serviceName: auth-service
           servicePort: 8084
       - path: /register
         backend:
-          serviceName: auth
+          serviceName: auth-service
           servicePort: 8084
+
