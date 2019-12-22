@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grafana-d
+spec:
+  replicas: 1
+  serviceName: "grafana"
+  selector:
+    matchLabels:
+      app: grafana-d
+  template:
+    metadata:
+      labels:
+        app: grafana-d
+    spec:
+      initContainers:
+        - name: init-grafana
+          image: debian
+          imagePullPolicy: Always
+          command: ['/bin/bash', '-c', 'mkdir -p /var/lib/grafana && chmod 777 /var/lib/grafana']
+          volumeMounts:
+            - name: grafana-vol
+              mountPath: /var/lib
+      containers:
+        - image: grafana/grafana:6.2.4
+          name: grafana-d
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 3000
+          ports:
+            - containerPort: 3000
+              name: ui
+          env:
+            - name: GF_AUTH_BASIC_ENABLED
+              value: "false"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: Admin
+          volumeMounts:
+#            - name: grafana-persistent-storage
+#              mountPath: /var/lib/grafana
+            - name: grafana-vol
+              mountPath: /var/lib
+#        - name: grafana-import-dashboards
+#          image: docker
+#          command: ["/bin/sh", "-c"]
+#          workingDir: /opt/grafana-import-dashboards
+#          args:
+#            # FIXME use kubernetes probe instead of "until curl"
+#            - >
+#              apk --update add curl ;
+#              until $(curl --silent --fail --show-error --output /dev/null http://localhost:3000/api/datasources); do
+#                printf '.' ; sleep 1 ;
+#              done ;
+#              for file in *-datasource.json ; do
+#                if [ -e "$file" ] ; then
+#                  echo "importing $file" &&
+#                  curl --silent --fail --show-error \
+#                    --request POST http://localhost:3000/api/datasources \
+#                    --header "Content-Type: application/json" \
+#                    --data-binary "@$file" ;
+#                  echo "" ;
+#                fi
+#              done ;
+#              for file in *-dashboard.json ; do
+#                if [ -e "$file" ] ; then
+#                  # wrap exported Grafana dashboard into valid json
+#                  echo "importing $file" &&
+#                  (echo '{"dashboard":';cat "$file";echo ',"inputs":[{"name":"DS_PROMETHEUS","pluginId":"prometheus","type":"datasource","value":"prometheus"}]}') | curl --silent --fail --show-error \
+#                    --request POST http://localhost:3000/api/dashboards/import \
+#                    --header "Content-Type: application/json" \
+#                    --data-binary @-;
+#                  echo "" ;
+#                fi
+#              done ;
+#              while true; do
+#                sleep 1m ;
+#              done
+#          volumeMounts:
+#            - name: config-volume
+#              mountPath: /opt/grafana-import-dashboards
+#      volumes:
+        #- name: config-volume
+        #  configMap:
+        #    name: grafana-import-dashboards
+#        - name: grafana-persistent-storage
+#          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: grafana-vol
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 10Gi 
