@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: dm874-ingress
-  annotations:
+  namespace: ingress-nginx
 spec:
   rules:
   - host: gr2-site.cloud.sdu.dk
