@@ -2,7 +2,6 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: dm874-ingress
-  namespace: ingress-nginx
   annotations:
     nginx.ingress.kubernetes.io/websocket-services: "webserver-ws"
     nginx.org/websocket-services: "webserver-ws"
