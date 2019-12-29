@@ -146,7 +146,7 @@ data:
     # Timeout in ms for connecting to zookeeper
     zookeeper.connection.timeout.ms=6000
 
-    auto.create.topics.enable=false
+    auto.create.topics.enable=true
     ############################# Group Coordinator Settings #############################
 
     # The following configuration specifies the time, in milliseconds, that the GroupCoordinator will delay the initial consumer rebalance.
